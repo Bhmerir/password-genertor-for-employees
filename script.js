@@ -14,17 +14,17 @@ function writePassword() {
 generateBtn.addEventListener("click", writePassword);
 
 //The global variable which keep the requested number of characters
-var characterNo;
+var characterNo = 0;
 
 /*The global of variables of below keeps if the password should have that criteria or not.
  false: not having that critria , true: having that criteria*/
-var haveUppercaseChar;
-var haveLowercaseChar;
-var haveNumericChar;
-var haveSpecialChar;
+var haveUppercaseChar = false;
+var haveLowercaseChar = false;
+var haveNumericChar = false;
+var haveSpecialChar = false;
 
 //This variable keeps the number of the requested criteria by user, it sets 0 because user hasn't chosen any yet
-var criteriaNo;
+var criteriaNo = 0;
 
 //This are the list of the characters that the password can consist of
 var uppercaseChars = ["A","B", "C", "D", "E", "F", "G", "H","I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
@@ -33,7 +33,7 @@ var numericChars = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 var specialChars = ["!", "#", "$", "%", "&", "(", ")", "*", "+", ",", "-", ".", "/", ":", ";", "<", "=", ">", "?", "@", "[", "]","^", "_", "{", "|", "}", "~"];
 
 //This list keep the chosen characters
-var chosenList;
+var chosenList = [];
 
 //This function ask the user to enter the number of characters requested 
 function askCharactorNumber(){
@@ -98,47 +98,89 @@ function askCriteria(){
   }
 }
 
+
 //
 function selectAndAddChosenChars(charList, charNo){
   //Random select of characters from eachlist and add it to chosen list
-  var selectedChar;
-  var selectedWord = "";
-  var selectedIndex;
+  var selectedIndex = 0;
+  var selectedChar = "";
   for (i = 0; i < charNo; i++){
-    selectedIndex = Math.floor(Math.random() * charNo);
+    selectedIndex = Math.floor(Math.random() * charList.length);
     selectedChar = charList[selectedIndex];
-    selectedWord = selectedWord + selectedChar;
-    console.log(selectedWord);
     chosenList.push(selectedChar);
   }
-  chosenList.forEach(element => console.log(element));
 }
 
-var remainingChar = characterNo;
+
 var listNo = 0;
-//var
+/*Choose a random number of selected characters from each list 
+  considering the length of the requested password and criteria*/
 function chooseRandomCharforEachList(){
-  //This is our base criteria for this recursive approach
-  var remainingChar = characterNo;
- /* console.log(criteriaNo);
-  console.log(remainingChar);*/
+  var remainingChars = characterNo - chosenList.length;
+  /*This is our base criteria for this recursive approach, and it says that
+  if we have only one criteria, all remaining characters must be chosen from its elevent list*/
   if(criteriaNo == 1){
     if(haveUppercaseChar){
-      selectAndAddChosenChars(uppercaseChars, remainingChar);
+      selectAndAddChosenChars(uppercaseChars, remainingChars);
       haveUppercaseChar = false;
+      return;
     }
     else if(haveLowercaseChar){
-      selectAndAddChosenChars(lowercaseChars, remainingChar);
+      selectAndAddChosenChars(lowercaseChars, remainingChars);
       haveLowercaseChar = false;
+      return;
     }
     else if(haveNumericChar){
-      selectAndAddChosenChars(numericChars, remainingChar);
+      selectAndAddChosenChars(numericChars, remainingChars);
       haveNumericChar = false;
+      return;
     }
     else{
-      selectAndAddChosenChars(specialChars, remainingChar);
+      selectAndAddChosenChars(specialChars, remainingChars);
       haveSpecialChar = false;
+      return;
     }
+  }
+
+  /*In order to have all requested criteria, the number of chosen character 
+  from each list can't be more than half+1 characters of remaining characters*/
+  listNo = Math.floor(Math.random() * (Math.floor(remainingChars * 0.5)+1));
+  /*This while said that the random number can't be 0, 
+  because we want to definitely have at least one character from each requested criteria*/
+  while(listNo == 0){
+    listNo = Math.floor(Math.random() * (Math.floor(remainingChars * 0.5)+1));
+  }
+
+  /*After randomly selecting the number of characters of each list, we call the function of selectAndAddChosenChars
+  to choose random characters from one list then we reduce the number of criteria that have not considered yet and 
+  recall this function again. This is the recursive part and each time only one of the criteria is considered*/ 
+  if(haveUppercaseChar){
+    selectAndAddChosenChars(uppercaseChars, listNo);
+    haveUppercaseChar = false;
+    criteriaNo--;
+    remainingChars = remainingChars - listNo;
+    chooseRandomCharforEachList();
+  }
+  else if(haveLowercaseChar){
+    selectAndAddChosenChars(lowercaseChars, listNo);
+    haveLowercaseChar = false;
+    criteriaNo--;
+    remainingChars = remainingChars - listNo;
+    chooseRandomCharforEachList();
+  }
+  else if(haveNumericChar){
+    selectAndAddChosenChars(numericChars, listNo);
+    haveNumericChar = false;
+    criteriaNo--;
+    remainingChars = remainingChars - listNo;
+    chooseRandomCharforEachList();
+  }
+  else{
+    selectAndAddChosenChars(specialChars, listNo);
+    haveSpecialChar = false;
+    criteriaNo--;
+    remainingChars = remainingChars - listNo;
+    chooseRandomCharforEachList();
   }
 
 }
@@ -146,13 +188,23 @@ function chooseRandomCharforEachList(){
 
 //This function generates the password
 function generatePassword(){
-  chosenList = [];
-   //Ask for character numbers
-   askCharactorNumber();
-   //Ask for criteria
-   askCriteria();
-   /*Choose a random number of selected characters from each list 
-   considering the length of the requested password and criteria*/
-   chooseRandomCharforEachList();
+  var listLen = chosenList.length;
+  for(i=0; i < listLen; i++)
+  {
+    chosenList.pop();
+  }
+  //Ask for character numbers
+  askCharactorNumber();
+  //Ask for criteria
+  askCriteria();
+  /*This function chooses thae random number of characters that should be chosen from each list and
+  then it calls another function which is responsible to choose random characters*/
+  chooseRandomCharforEachList();
+  //shuffle the chosen list to have a more random password
+
+  //This part make a string from our chosen letters and return it to be shown to user
+  chosenList.forEach(function(element){ 
+          ourPassword = ourPassword + element});
+  return(ourPassword);
 }
 
