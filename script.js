@@ -13,6 +13,7 @@ function writePassword() {
 // Add event listener to generate button
 generateBtn.addEventListener("click", writePassword);
 
+///////////////////////////////////Definition of global variables////////////////////////////////////////
 //The global variable which keep the requested number of characters
 var characterNo = 0;
 
@@ -35,13 +36,14 @@ var specialChars = ["!", "#", "$", "%", "&", "(", ")", "*", "+", ",", "-", ".", 
 //This list keep the chosen characters
 var chosenList = [];
 
+//////////////////////////////////////askCharactorNumber function///////////////////////////////////////
 //This function ask the user to enter the number of characters requested 
 function askCharactorNumber(){
   var notAccepted = true;
   // This why will be executed until the user enters a valid number or click on cancel button
   while(notAccepted){
     characterNo = prompt("How many characters would you like your password to contain?");
-    if (characterNo != null){
+    if (characterNo !== null){
       characterNo = parseInt(characterNo);
       /* Number.isInteger checks if the entered value is an integer or not.
        AS the user might enter for example an string or leave it empty which are unacceptable*/
@@ -57,15 +59,18 @@ function askCharactorNumber(){
       else{
         //If the user enter an integer between 8 and 129, loop will be ended
         notAccepted = false;
+        return true;
       }
     }
     else{
        //If the user click cancel, loop will be ended
       notAccepted = false;
+      return false;
     }
   }
 }
 
+////////////////////////////////askCriteria function///////////////////////////////////////////////
 //This function ask the user about the requested criteria 
 function askCriteria(){
   haveUppercaseChar = false;
@@ -98,10 +103,9 @@ function askCriteria(){
   }
 }
 
-
-//
-function selectAndAddChosenChars(charList, charNo){
-  //Random select of characters from eachlist and add it to chosen list
+//////////////////////////////selectAndAddChosenChars function////////////////////////////////////////
+//Random select of characters from eachlist and add it to the chosenList
+function selectAndAddChosenChars(charList, charNo){ 
   var selectedIndex = 0;
   var selectedChar = "";
   for (i = 0; i < charNo; i++){
@@ -111,7 +115,7 @@ function selectAndAddChosenChars(charList, charNo){
   }
 }
 
-
+///////////////////////////////chooseRandomCharforEachList function/////////////////////////////////////
 var listNo = 0;
 /*Choose a random number of selected characters from each list 
   considering the length of the requested password and criteria*/
@@ -185,26 +189,43 @@ function chooseRandomCharforEachList(){
 
 }
 
-
+////////////////////////////////////////shuffleList function/////////////////////////////////////////////////
+//This function is used to shuffle randomly the characters of our chosen list
+function shuffleList(){
+  var listLength = chosenList.length;
+  for(var i=0; i<listLength; i++){
+    var j = Math.floor(Math.random() * listLength);
+    var temp = chosenList[i];
+    chosenList[i] = chosenList[j];
+    chosenList[j] = temp;
+  }
+}
+///////////////////////////The main function that generates password by calling the other functions//////////
 //This function generates the password
 function generatePassword(){
-  var listLen = chosenList.length;
-  for(i=0; i < listLen; i++)
-  {
-    chosenList.pop();
-  }
   //Ask for character numbers
-  askCharactorNumber();
-  //Ask for criteria
-  askCriteria();
-  /*This function chooses thae random number of characters that should be chosen from each list and
-  then it calls another function which is responsible to choose random characters*/
-  chooseRandomCharforEachList();
-  //shuffle the chosen list to have a more random password
-
-  //This part make a string from our chosen letters and return it to be shown to user
-  chosenList.forEach(function(element){ 
-          ourPassword = ourPassword + element});
-  return(ourPassword);
+  var continueGeneratePassword = askCharactorNumber();
+  if (continueGeneratePassword){
+    var listLen = chosenList.length;
+    for(i=0; i < listLen; i++)
+    {
+      chosenList.pop();
+    }
+    //Ask for criteria
+    askCriteria();
+    /*This function chooses thae random number of characters that should be chosen from each list and
+    then it calls another function which is responsible to choose random characters*/
+    chooseRandomCharforEachList();
+    //shuffle the chosen list to have a more random password
+    shuffleList();
+    //This part make a string from our chosen letters and return it to be shown to user
+    var ourPassword = "";
+    chosenList.forEach(function(element){ 
+            ourPassword = ourPassword + element});
+    return ourPassword;
+  }
+  else{
+    return "Your Secure Password";
+  }
 }
 
