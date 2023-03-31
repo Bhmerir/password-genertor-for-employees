@@ -23,7 +23,7 @@ In order to achieve this goal, I took the following steps:
 
 ---------------------------------
 
-![]()
+![my-deployed-site.png](my-deployed-site.png)
 
 <br>
 
@@ -86,7 +86,7 @@ br>
 
 ---------------------------------
 
-[]()
+[https://bhmerir.github.io/password-genertor-for-employees](https://bhmerir.github.io/password-genertor-for-employees)
 
 <br>
 
